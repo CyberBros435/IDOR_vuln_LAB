@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IDOR Lab – Profile</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Courier New', monospace; background: #0d0d0d; color: #00ff41; min-height: 100vh; }
+    header { background: #111; border-bottom: 1px solid #00ff4133; padding: 14px 30px; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.1rem; letter-spacing: 2px; }
+    nav a { color: #00ff41; text-decoration: none; margin-left: 18px; font-size: .9rem; }
+    .container { max-width: 700px; margin: 50px auto; padding: 0 20px; }
+    .vuln-tag { display: inline-block; background: #ff444422; border: 1px solid #ff4444; color: #ff4444; font-size: .7rem; padding: 2px 8px; border-radius: 3px; margin-bottom: 20px; }
+    .card { background: #111; border: 1px solid #00ff4133; border-radius: 6px; padding: 28px; }
+    .card h2 { color: #00ff41; margin-bottom: 20px; }
+    .row { display: flex; border-bottom: 1px solid #1a1a1a; padding: 10px 0; }
+    .row:last-child { border-bottom: none; }
+    .row .key   { width: 140px; color: #555; font-size: .85rem; }
+    .row .value { color: #00ff41; font-size: .9rem; }
+    .hint { color: #444; font-size: .8rem; margin-top: 20px; }
+    .hint span { color: #ff4444; }
+    a { color: #00ff41; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>&#9888; IDOR Lab</h1>
+  <nav>
+    <a href="/">Home</a>
+    {% if current_user %}<a href="/notes?user_id={{ current_user.id }}">My Notes</a>{% endif %}
+    <a href="/login">Login</a>
+  </nav>
+</header>
+
+<div class="container">
+  <p class="vuln-tag">&#9888; VULNERABLE: IDOR – No ownership check on profile id</p>
+  <div class="card">
+    <h2>User Profile</h2>
+    <div class="row"><span class="key">User ID</span><span class="value">{{ profile.id }}</span></div>
+    <div class="row"><span class="key">Username</span><span class="value">{{ profile.username }}</span></div>
+    <div class="row"><span class="key">Email</span><span class="value">{{ profile.email }}</span></div>
+    <div class="row"><span class="key">Password</span><span class="value">{{ profile.password }}</span></div>
+    <p class="hint">
+      &#9888; The password is stored <span>in plaintext</span> and is visible here.<br>
+      Try changing <code>?id=</code> in the URL to enumerate all users.
+    </p>
+  </div>
+</div>
+</body>
+</html>

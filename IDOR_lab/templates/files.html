@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IDOR Lab – Files</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Courier New', monospace; background: #0d0d0d; color: #00ff41; min-height: 100vh; }
+    header { background: #111; border-bottom: 1px solid #00ff4133; padding: 14px 30px; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.1rem; letter-spacing: 2px; }
+    nav a { color: #00ff41; text-decoration: none; margin-left: 18px; font-size: .9rem; }
+    .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    .vuln-tag { display: inline-block; background: #ff444422; border: 1px solid #ff4444; color: #ff4444; font-size: .7rem; padding: 2px 8px; border-radius: 3px; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; background: #111; border: 1px solid #00ff4122; border-radius: 6px; overflow: hidden; }
+    th { background: #0a0a0a; color: #555; font-size: .78rem; text-align: left; padding: 10px 14px; border-bottom: 1px solid #1a1a1a; }
+    td { padding: 10px 14px; border-bottom: 1px solid #0f0f0f; color: #ccc; font-size: .88rem; }
+    tr:last-child td { border-bottom: none; }
+    a { color: #00ff41; }
+    .download-link { color: #ffcc00; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .top-bar h2 { font-size: 1rem; }
+    .upload-btn { background: #00ff4111; border: 1px solid #00ff41; color: #00ff41; padding: 7px 18px; border-radius: 4px; text-decoration: none; font-size: .85rem; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>&#9888; IDOR Lab</h1>
+  <nav><a href="/">Home</a><a href="/upload">Upload</a><a href="/login">Login</a></nav>
+</header>
+
+<div class="container">
+  <p class="vuln-tag">&#9888; VULNERABLE: IDOR – any file downloadable by changing file_id</p>
+  <div class="top-bar">
+    <h2>All Uploaded Files</h2>
+    <a class="upload-btn" href="/upload">&#11014; Upload New</a>
+  </div>
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Owner (user_id)</th><th>Username</th><th>Filename</th><th>Download</th></tr>
+    </thead>
+    <tbody>
+      {% for f in files %}
+      <tr>
+        <td>{{ f.id }}</td>
+        <td>{{ f.user_id }}</td>
+        <td>{{ f.username }}</td>
+        <td>{{ f.filename }}</td>
+        <td><a class="download-link" href="/download?file_id={{ f.id }}">&#11015; /download?file_id={{ f.id }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p style="color:#444;font-size:.78rem;margin-top:12px">&#9888; All files are listed for all users. Change <code>file_id</code> in the download URL to access any file.</p>
+</div>
+</body>
+</html>

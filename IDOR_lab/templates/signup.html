@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IDOR Lab – Sign Up</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Courier New', monospace; background: #0d0d0d; color: #00ff41; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .box { background: #111; border: 1px solid #00ff4133; border-radius: 8px; padding: 40px 36px; width: 360px; }
+    h2 { text-align: center; margin-bottom: 28px; font-size: 1.2rem; letter-spacing: 2px; }
+    label { display: block; color: #888; font-size: .8rem; margin-bottom: 6px; }
+    input { width: 100%; background: #0a0a0a; border: 1px solid #00ff4133; border-radius: 4px; color: #00ff41; padding: 10px; font-family: inherit; font-size: .9rem; margin-bottom: 18px; outline: none; }
+    input:focus { border-color: #00ff41; }
+    button { width: 100%; background: #00ff4111; border: 1px solid #00ff41; color: #00ff41; padding: 10px; border-radius: 4px; font-family: inherit; font-size: .95rem; cursor: pointer; letter-spacing: 1px; }
+    button:hover { background: #00ff4122; }
+    .error { color: #ff4444; font-size: .85rem; margin-bottom: 16px; text-align: center; }
+    .links { margin-top: 18px; text-align: center; font-size: .85rem; color: #555; }
+    .links a { color: #00ff41; text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="box">
+  <h2>&#x1F4DD; SIGN UP</h2>
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <form method="POST" action="/signup">
+    <label>Username</label>
+    <input type="text" name="username" placeholder="yourname" required>
+    <label>Email</label>
+    <input type="email" name="email" placeholder="you@example.com" required>
+    <label>Password</label>
+    <input type="password" name="password" placeholder="password" required>
+    <button type="submit">CREATE ACCOUNT</button>
+  </form>
+  <div class="links">
+    Already have an account? <a href="/login">Login</a> &nbsp;|&nbsp; <a href="/">Home</a>
+  </div>
+</div>
+</body>
+</html>

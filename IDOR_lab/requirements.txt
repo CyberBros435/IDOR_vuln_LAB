@@ -1,0 +1,9 @@
+# IDOR Vulnerability Lab - Dependencies
+# Install with: pip install -r requirements.txt
+
+# Web framework
+Flask>=3.0.0
+
+# Werkzeug is installed automatically with Flask
+# Listed explicitly for clarity
+Werkzeug>=3.0.0

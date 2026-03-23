@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IDOR Lab – Admin Panel</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Courier New', monospace; background: #0d0d0d; color: #00ff41; min-height: 100vh; }
+    header { background: #111; border-bottom: 1px solid #00ff4133; padding: 14px 30px; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.1rem; letter-spacing: 2px; }
+    nav a { color: #00ff41; text-decoration: none; margin-left: 18px; font-size: .9rem; }
+    .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+    .vuln-tag { display: inline-block; background: #ff444422; border: 1px solid #ff4444; color: #ff4444; font-size: .7rem; padding: 2px 8px; border-radius: 3px; margin-bottom: 16px; }
+    .denied { background: #111; border: 1px solid #ff4444; border-radius: 6px; padding: 40px; text-align: center; }
+    .denied h2 { color: #ff4444; margin-bottom: 12px; }
+    .denied p { color: #888; font-size: .9rem; line-height: 1.7; }
+    .denied code { color: #ffcc00; background: #0a0a0a; padding: 2px 6px; border-radius: 3px; }
+    .section-title { color: #888; font-size: .8rem; letter-spacing: 2px; margin: 24px 0 10px; text-transform: uppercase; }
+    table { width: 100%; border-collapse: collapse; background: #111; border: 1px solid #00ff4122; border-radius: 6px; overflow: hidden; margin-bottom: 30px; }
+    th { background: #0a0a0a; color: #555; font-size: .78rem; text-align: left; padding: 10px 14px; border-bottom: 1px solid #1a1a1a; }
+    td { padding: 10px 14px; border-bottom: 1px solid #0f0f0f; color: #ccc; font-size: .85rem; }
+    tr:last-child td { border-bottom: none; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: .72rem; }
+    .pill-red { background: #ff444422; border: 1px solid #ff4444; color: #ff4444; }
+    .pill-green { background: #00ff4111; border: 1px solid #00ff41; color: #00ff41; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>&#9888; IDOR Lab</h1>
+  <nav><a href="/">Home</a><a href="/logout">Logout</a></nav>
+</header>
+
+<div class="container">
+  {% if not access %}
+  <div class="denied">
+    <h2>&#10060; Access Denied</h2>
+    <p>You don't have admin privileges.</p>
+    <br>
+    <p>
+      <strong style="color:#ff4444">VULNERABILITY:</strong> Add <code>?role=admin</code> to the URL to bypass this check.<br>
+      The server trusts the role value from the request without any server-side validation.
+    </p>
+    <br>
+    <p>Example: <code>http://localhost:5000/admin?role=admin</code></p>
+  </div>
+  {% else %}
+  <p class="vuln-tag">&#9888; VULNERABLE: Broken Access Control – role parameter trusted from request</p>
+  <h2 style="color:#ff4444;margin-bottom:4px">&#9888; ADMIN PANEL</h2>
+  <p style="color:#555;font-size:.82rem;margin-bottom:20px">You gained admin access via the <code>?role=admin</code> parameter. No server-side validation was performed.</p>
+
+  <p class="section-title">All Users</p>
+  <table>
+    <thead><tr><th>ID</th><th>Username</th><th>Email</th><th>Password (Plaintext)</th></tr></thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.id }}</td>
+        <td>{{ u.username }}</td>
+        <td>{{ u.email }}</td>
+        <td><span class="pill pill-red">{{ u.password }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <p class="section-title">All Notes</p>
+  <table>
+    <thead><tr><th>ID</th><th>User ID</th><th>Content</th></tr></thead>
+    <tbody>
+      {% for n in notes %}
+      <tr>
+        <td>{{ n.id }}</td>
+        <td>{{ n.user_id }}</td>
+        <td>{{ n.content }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <p class="section-title">All Files</p>
+  <table>
+    <thead><tr><th>ID</th><th>User ID</th><th>Filename</th><th>Download</th></tr></thead>
+    <tbody>
+      {% for f in files %}
+      <tr>
+        <td>{{ f.id }}</td>
+        <td>{{ f.user_id }}</td>
+        <td>{{ f.filename }}</td>
+        <td><a href="/download?file_id={{ f.id }}" style="color:#ffcc00">&#11015; Download</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+</body>
+</html>

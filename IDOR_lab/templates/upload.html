@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IDOR Lab – Upload Files</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Courier New', monospace; background: #0d0d0d; color: #00ff41; min-height: 100vh; }
+    header { background: #111; border-bottom: 1px solid #00ff4133; padding: 14px 30px; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.1rem; letter-spacing: 2px; }
+    nav a { color: #00ff41; text-decoration: none; margin-left: 18px; font-size: .9rem; }
+    .container { max-width: 700px; margin: 50px auto; padding: 0 20px; }
+    .vuln-tag { display: inline-block; background: #ff444422; border: 1px solid #ff4444; color: #ff4444; font-size: .7rem; padding: 2px 8px; border-radius: 3px; margin-bottom: 16px; }
+    .form-card { background: #111; border: 1px solid #00ff4133; border-radius: 6px; padding: 28px; }
+    .form-card h2 { margin-bottom: 20px; }
+    label { display: block; color: #888; font-size: .8rem; margin-bottom: 6px; }
+    input[type=file], input[type=number] { background: #0a0a0a; border: 1px solid #00ff4133; border-radius: 4px; color: #00ff41; padding: 9px; font-family: inherit; font-size: .88rem; width: 100%; outline: none; margin-bottom: 14px; }
+    input:focus { border-color: #00ff41; }
+    button { background: #00ff4111; border: 1px solid #00ff41; color: #00ff41; padding: 9px 24px; border-radius: 4px; font-family: inherit; cursor: pointer; font-size: .9rem; }
+    button:hover { background: #00ff4122; }
+    .success { color: #00ff41; font-size: .9rem; margin-bottom: 16px; }
+    .hint { color: #444; font-size: .78rem; margin-top: 8px; }
+    .links { margin-top: 20px; } 
+    .links a { color: #00ff41; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>&#9888; IDOR Lab</h1>
+  <nav><a href="/">Home</a><a href="/files">All Files</a><a href="/login">Login</a></nav>
+</header>
+
+<div class="container">
+  <p class="vuln-tag">&#9888; VULNERABLE: IDOR – user_id taken from form, no ownership check on download</p>
+  <div class="form-card">
+    <h2>&#11014; Upload File</h2>
+    {% if message %}<p class="success">✔ {{ message }}</p>{% endif %}
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+      <label>File</label>
+      <input type="file" name="file" required>
+      <!-- VULNERABLE: user_id is editable, not taken from session -->
+      <label>user_id (change to attribute upload to another user)</label>
+      <input type="number" name="user_id" value="1" min="1">
+      <p class="hint">&#9888; user_id is NOT validated against your session.</p>
+      <br>
+      <button type="submit">Upload</button>
+    </form>
+    <div class="links">
+      <br><a href="/files">&#8594; View all uploaded files</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

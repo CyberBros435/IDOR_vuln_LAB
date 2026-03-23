@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IDOR Lab – Home</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Courier New', monospace; background: #0d0d0d; color: #00ff41; min-height: 100vh; }
+    header { background: #111; border-bottom: 1px solid #00ff4133; padding: 14px 30px; display: flex; align-items: center; justify-content: space-between; }
+    header h1 { font-size: 1.3rem; letter-spacing: 2px; }
+    header span { color: #ff4444; font-size: .85rem; }
+    nav a { color: #00ff41; text-decoration: none; margin-left: 18px; font-size: .9rem; border-bottom: 1px dashed #00ff4144; }
+    nav a:hover { color: #fff; }
+    .container { max-width: 900px; margin: 50px auto; padding: 0 20px; }
+    .card { background: #111; border: 1px solid #00ff4133; border-radius: 6px; padding: 28px; margin-bottom: 22px; }
+    .card h2 { color: #00ff41; margin-bottom: 12px; font-size: 1.1rem; }
+    .card p { color: #aaa; line-height: 1.6; font-size: .9rem; }
+    .card a { color: #00ff41; }
+    .tag { display: inline-block; background: #ff444422; border: 1px solid #ff4444; color: #ff4444; font-size: .7rem; padding: 2px 8px; border-radius: 3px; margin-left: 8px; vertical-align: middle; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+    .endpoint { background: #0a0a0a; border: 1px solid #00ff4122; padding: 14px; border-radius: 4px; }
+    .endpoint code { color: #ffcc00; font-size: .85rem; }
+    .endpoint p  { color: #888; font-size: .8rem; margin-top: 6px; }
+    .badge-vuln { color: #ff4444; font-size: .75rem; }
+    .warning-banner { background: #ff44440d; border: 1px solid #ff4444; border-radius: 6px; padding: 14px 20px; margin-bottom: 24px; color: #ff6666; font-size: .85rem; }
+    footer { text-align: center; color: #333; padding: 30px; font-size: .8rem; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>&#9888; IDOR Vulnerability Lab</h1>
+  <span>FOR EDUCATIONAL USE ONLY</span>
+  <nav>
+    {% if user %}
+      <a href="/profile?id={{ user.id }}">Profile</a>
+      <a href="/notes?user_id={{ user.id }}">My Notes</a>
+      <a href="/files">Files</a>
+      <a href="/admin">Admin</a>
+      <a href="/logout">Logout</a>
+    {% else %}
+      <a href="/login">Login</a>
+      <a href="/signup">Signup</a>
+    {% endif %}
+  </nav>
+</header>
+
+<div class="container">
+  <div class="warning-banner">
+    &#9888;&nbsp; <strong>WARNING:</strong> This application is <strong>intentionally vulnerable</strong> and designed for Burp Suite IDOR practice.
+    Never expose this to a public network.
+  </div>
+
+  {% if user %}
+  <div class="card">
+    <h2>&#9654; Logged in as: <span style="color:#ffcc00">{{ user.username }}</span> &nbsp;<small style="color:#888">(id={{ user.id }})</small></h2>
+    <p>You are now authenticated. Try accessing other users' data via the endpoints below. Change IDs in the URL or request body to exploit IDOR.</p>
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <h2>Vulnerable Endpoints <span class="tag">IDOR</span></h2>
+    <div class="grid">
+      <div class="endpoint">
+        <code>GET /profile?id={id}</code>
+        <p class="badge-vuln">&#9888; No ownership check</p>
+        <p>View any user's profile by changing the id.</p>
+      </div>
+      <div class="endpoint">
+        <code>GET /notes?user_id={id}</code>
+        <p class="badge-vuln">&#9888; No ownership check</p>
+        <p>Read any user's notes by changing user_id.</p>
+      </div>
+      <div class="endpoint">
+        <code>GET /edit_note?id={id}</code>
+        <p class="badge-vuln">&#9888; No ownership check</p>
+        <p>Edit any note by ID.</p>
+      </div>
+      <div class="endpoint">
+        <code>GET /delete_note?id={id}</code>
+        <p class="badge-vuln">&#9888; No ownership check</p>
+        <p>Delete any note by ID.</p>
+      </div>
+      <div class="endpoint">
+        <code>GET /download?file_id={id}</code>
+        <p class="badge-vuln">&#9888; No ownership check</p>
+        <p>Download any file by changing file_id.</p>
+      </div>
+      <div class="endpoint">
+        <code>GET /admin?role=admin</code>
+        <p class="badge-vuln">&#9888; Role from query param</p>
+        <p>Access admin panel – role trusted from request.</p>
+      </div>
+      <div class="endpoint">
+        <code>POST /api/update_email</code>
+        <p class="badge-vuln">&#9888; user_id trusted from body</p>
+        <p>Change any user's email via JSON body.</p>
+      </div>
+      <div class="endpoint">
+        <code>POST /api/change_password</code>
+        <p class="badge-vuln">&#9888; Blind IDOR</p>
+        <p>Change any user's password. Response doesn't differ.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Seed Accounts</h2>
+    <p>Three pre-seeded accounts for testing:</p>
+    <ul style="margin-top:12px;color:#aaa;list-style:none;font-size:.9rem;line-height:2">
+      <li>&#9679; <strong style="color:#00ff41">user1</strong> / password1 &nbsp;(id=1)</li>
+      <li>&#9679; <strong style="color:#00ff41">user2</strong> / password2 &nbsp;(id=2)</li>
+      <li>&#9679; <strong style="color:#00ff41">admin</strong> / adminpass &nbsp;(id=3)</li>
+    </ul>
+  </div>
+</div>
+
+<footer>IDOR Lab &mdash; For security training purposes only</footer>
+</body>
+</html>

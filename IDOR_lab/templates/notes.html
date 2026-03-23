@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IDOR Lab – Notes</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Courier New', monospace; background: #0d0d0d; color: #00ff41; min-height: 100vh; }
+    header { background: #111; border-bottom: 1px solid #00ff4133; padding: 14px 30px; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.1rem; letter-spacing: 2px; }
+    nav a { color: #00ff41; text-decoration: none; margin-left: 18px; font-size: .9rem; }
+    .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    .vuln-tag { display: inline-block; background: #ff444422; border: 1px solid #ff4444; color: #ff4444; font-size: .7rem; padding: 2px 8px; border-radius: 3px; margin-bottom: 16px; }
+    .section-title { color: #888; font-size: .8rem; letter-spacing: 2px; margin-bottom: 14px; text-transform: uppercase; }
+    table { width: 100%; border-collapse: collapse; background: #111; border: 1px solid #00ff4122; border-radius: 6px; overflow: hidden; }
+    th { background: #0a0a0a; color: #555; font-size: .8rem; text-align: left; padding: 10px 14px; border-bottom: 1px solid #1a1a1a; }
+    td { padding: 10px 14px; border-bottom: 1px solid #0f0f0f; color: #ccc; font-size: .88rem; }
+    tr:last-child td { border-bottom: none; }
+    .btn { display: inline-block; padding: 4px 12px; border-radius: 3px; font-family: inherit; font-size: .8rem; cursor: pointer; text-decoration: none; }
+    .btn-edit   { background: #ffcc0011; border: 1px solid #ffcc00; color: #ffcc00; }
+    .btn-delete { background: #ff444411; border: 1px solid #ff4444; color: #ff4444; }
+    .btn-edit:hover   { background: #ffcc0022; }
+    .btn-delete:hover { background: #ff444422; }
+    .form-card { background: #111; border: 1px solid #00ff4133; border-radius: 6px; padding: 22px; margin-bottom: 24px; }
+    .form-card h3 { margin-bottom: 14px; color: #00ff41; font-size: .95rem; }
+    input[type=text], textarea, input[type=number] { background: #0a0a0a; border: 1px solid #00ff4133; border-radius: 4px; color: #00ff41; padding: 9px; font-family: inherit; font-size: .88rem; width: 100%; outline: none; margin-bottom: 10px; }
+    input:focus, textarea:focus { border-color: #00ff41; }
+    textarea { height: 80px; resize: vertical; }
+    .submit-btn { background: #00ff4111; border: 1px solid #00ff41; color: #00ff41; padding: 8px 22px; border-radius: 4px; font-family: inherit; cursor: pointer; font-size: .88rem; }
+    .submit-btn:hover { background: #00ff4122; }
+    .hint { color: #444; font-size: .78rem; margin-top: 8px; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>&#9888; IDOR Lab</h1>
+  <nav>
+    <a href="/">Home</a>
+    {% if current_user %}<a href="/profile?id={{ current_user.id }}">Profile</a>{% endif %}
+    <a href="/files">Files</a>
+    <a href="/login">Login</a>
+  </nav>
+</header>
+
+<div class="container">
+  <p class="vuln-tag">&#9888; VULNERABLE: IDOR – user_id accepted from URL, no ownership validation</p>
+
+  {% if edit_note %}
+  <!-- Edit Note Form -->
+  <div class="form-card">
+    <h3>&#9998; Edit Note (id={{ edit_note.id }})</h3>
+    <form method="POST" action="/edit_note">
+      <input type="hidden" name="id" value="{{ edit_note.id }}">
+      <textarea name="content">{{ edit_note.content }}</textarea>
+      <input type="submit" class="submit-btn" value="Save Changes">
+    </form>
+  </div>
+  {% endif %}
+
+  <!-- Create Note Form -->
+  <div class="form-card">
+    <h3>&#43; Create Note</h3>
+    <form method="POST" action="/create_note">
+      <!-- VULNERABLE: user_id editable in form, no server-side ownership check -->
+      <label style="color:#555;font-size:.78rem">user_id (change to create notes for other users)</label>
+      <input type="number" name="user_id" value="{{ user_id }}" min="1">
+      <textarea name="content" placeholder="Note content..."></textarea>
+      <input type="submit" class="submit-btn" value="Add Note">
+      <p class="hint">&#9888; user_id is taken from this field &mdash; not from your session.</p>
+    </form>
+  </div>
+
+  <!-- Notes Table -->
+  <p class="section-title">Notes for: {{ owner }} (user_id={{ user_id }})</p>
+  {% if notes %}
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Content</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for note in notes %}
+      <tr>
+        <td>{{ note.id }}</td>
+        <td>{{ note.content }}</td>
+        <td>
+          <a class="btn btn-edit" href="/edit_note?id={{ note.id }}">Edit</a>
+          &nbsp;
+          <a class="btn btn-delete" href="/delete_note?id={{ note.id }}" onclick="return confirm('Delete note {{ note.id }}?')">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:#555;font-size:.9rem">No notes found for this user_id.</p>
+  {% endif %}
+</div>
+</body>
+</html>
